@@ -66,7 +66,7 @@ API.
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from functools import wraps
-from typing import TYPE_CHECKING, Optional, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, Optional, ParamSpec, TypeVar
 
 # pygit2
 from ._pygit2 import DiffFile, Oid
@@ -79,6 +79,8 @@ from .utils import StrArray, maybe_string, ptr_to_bytes, to_bytes
 _Credentials = Username | UserPass | Keypair
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pygit2._libgit2.ffi import GitProxyOptionsC
 
     from ._pygit2 import CloneOptions, PushOptions
@@ -353,48 +355,52 @@ class StashApplyCallbacks(CheckoutCallbacks):
 
 
 @contextmanager
-def git_clone_options(payload, opts=None):
+def git_clone_options(
+    payload: Payload, opts: Any | None = None
+) -> Generator[Payload, None, None]:
     if opts is None:
         opts = ffi.new('git_clone_options *')
         C.git_clone_options_init(opts, C.GIT_CLONE_OPTIONS_VERSION)
 
-    handle = ffi.new_handle(payload)
+    handle = ffi.new_handle(payload)  # type: ignore[attr-defined]
 
     # Plug callbacks
     if payload.repository:
-        opts.repository_cb = C._repository_create_cb
-        opts.repository_cb_payload = handle
+        opts.repository_cb = C._repository_create_cb  # type: ignore[attr-defined,union-attr]
+        opts.repository_cb_payload = handle  # type: ignore[attr-defined,union-attr]
     if payload.remote:
-        opts.remote_cb = C._remote_create_cb
-        opts.remote_cb_payload = handle
+        opts.remote_cb = C._remote_create_cb  # type: ignore[attr-defined,union-attr]
+        opts.remote_cb_payload = handle  # type: ignore[attr-defined,union-attr]
 
     # Give back control
     payload._stored_exception = None
-    payload.clone_options = opts
+    payload.clone_options = opts  # type: ignore[attr-defined]
     yield payload
 
 
 @contextmanager
-def git_fetch_options(payload, opts=None):
+def git_fetch_options(
+    payload: RemoteCallbacks | None, opts: Any | None = None
+) -> Generator[RemoteCallbacks, None, None]:
     if payload is None:
         payload = RemoteCallbacks()
 
     if opts is None:
-        opts = ffi.new('git_fetch_options *')
-        C.git_fetch_options_init(opts, C.GIT_FETCH_OPTIONS_VERSION)
+        opts = ffi.new('git_fetch_options *')  # type: ignore[call-overload]
+        C.git_fetch_options_init(opts, C.GIT_FETCH_OPTIONS_VERSION)  # type: ignore[attr-defined]
 
     # Plug callbacks
-    opts.callbacks.sideband_progress = C._sideband_progress_cb
-    opts.callbacks.transfer_progress = C._transfer_progress_cb
-    opts.callbacks.update_tips = C._update_tips_cb
-    opts.callbacks.credentials = C._credentials_cb
-    opts.callbacks.certificate_check = C._certificate_check_cb
+    opts.callbacks.sideband_progress = C._sideband_progress_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.transfer_progress = C._transfer_progress_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.update_tips = C._update_tips_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.credentials = C._credentials_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.certificate_check = C._certificate_check_cb  # type: ignore[attr-defined,union-attr]
     # Payload
-    handle = ffi.new_handle(payload)
-    opts.callbacks.payload = handle
+    handle = ffi.new_handle(payload)  # type: ignore[attr-defined]
+    opts.callbacks.payload = handle  # type: ignore[attr-defined,union-attr]
 
     # Give back control
-    payload.fetch_options = opts
+    payload.fetch_options = opts  # type: ignore[attr-defined]
     payload._stored_exception = None
     yield payload
 
@@ -423,57 +429,61 @@ def git_proxy_options(
 
 
 @contextmanager
-def git_push_options(payload, opts=None):
+def git_push_options(
+    payload: RemoteCallbacks | None, opts: Any | None = None
+) -> Generator[RemoteCallbacks, None, None]:
     if payload is None:
         payload = RemoteCallbacks()
 
-    opts = ffi.new('git_push_options *')
-    C.git_push_options_init(opts, C.GIT_PUSH_OPTIONS_VERSION)
+    opts = ffi.new('git_push_options *')  # type: ignore[call-overload]
+    C.git_push_options_init(opts, C.GIT_PUSH_OPTIONS_VERSION)  # type: ignore[attr-defined]
 
     # Plug callbacks
-    opts.callbacks.sideband_progress = C._sideband_progress_cb
-    opts.callbacks.transfer_progress = C._transfer_progress_cb
-    opts.callbacks.update_tips = C._update_tips_cb
-    opts.callbacks.credentials = C._credentials_cb
-    opts.callbacks.certificate_check = C._certificate_check_cb
-    opts.callbacks.push_update_reference = C._push_update_reference_cb
-    opts.callbacks.push_negotiation = C._push_negotiation_cb
+    opts.callbacks.sideband_progress = C._sideband_progress_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.transfer_progress = C._transfer_progress_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.update_tips = C._update_tips_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.credentials = C._credentials_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.certificate_check = C._certificate_check_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.push_update_reference = C._push_update_reference_cb  # type: ignore[attr-defined,union-attr]
+    opts.callbacks.push_negotiation = C._push_negotiation_cb  # type: ignore[attr-defined,union-attr]
     # Per libgit2 sources, push_transfer_progress may incur a performance hit.
     # So, set it only if the user has overridden the no-op stub.
     if (
         type(payload).push_transfer_progress
         is not RemoteCallbacks.push_transfer_progress
     ):
-        opts.callbacks.push_transfer_progress = C._push_transfer_progress_cb
+        opts.callbacks.push_transfer_progress = C._push_transfer_progress_cb  # type: ignore[attr-defined,union-attr]
     # Payload
-    handle = ffi.new_handle(payload)
-    opts.callbacks.payload = handle
+    handle = ffi.new_handle(payload)  # type: ignore[attr-defined]
+    opts.callbacks.payload = handle  # type: ignore[attr-defined,union-attr]
 
     # Give back control
-    payload.push_options = opts
+    payload.push_options = opts  # type: ignore[attr-defined]
     payload._stored_exception = None
     yield payload
 
 
 @contextmanager
-def git_remote_callbacks(payload):
+def git_remote_callbacks(
+    payload: RemoteCallbacks | None,
+) -> Generator[RemoteCallbacks, None, None]:
     if payload is None:
         payload = RemoteCallbacks()
 
-    cdata = ffi.new('git_remote_callbacks *')
-    C.git_remote_init_callbacks(cdata, C.GIT_REMOTE_CALLBACKS_VERSION)
+    cdata = ffi.new('git_remote_callbacks *')  # type: ignore[call-overload]
+    C.git_remote_init_callbacks(cdata, C.GIT_REMOTE_CALLBACKS_VERSION)  # type: ignore[attr-defined]
 
     # Plug callbacks
-    cdata.credentials = C._credentials_cb
-    cdata.update_tips = C._update_tips_cb
-    cdata.certificate_check = C._certificate_check_cb
+    cdata.credentials = C._credentials_cb  # type: ignore[attr-defined,union-attr]
+    cdata.update_tips = C._update_tips_cb  # type: ignore[attr-defined,union-attr]
+    cdata.certificate_check = C._certificate_check_cb  # type: ignore[attr-defined,union-attr]
     # Payload
-    handle = ffi.new_handle(payload)
-    cdata.payload = handle
+    handle = ffi.new_handle(payload)  # type: ignore[attr-defined]
+    cdata.payload = handle  # type: ignore[attr-defined,union-attr]
 
     # Give back control
     payload._stored_exception = None
-    payload.remote_callbacks = cdata
+    payload.remote_callbacks = cdata  # type: ignore[attr-defined]
     yield payload
 
 
@@ -536,7 +546,9 @@ def libgit2_callback_void(f: Callable[P, T]) -> Callable[P, T]:
 
 
 @libgit2_callback
-def _certificate_check_cb(cert_i, valid, host, data):
+def _certificate_check_cb(
+    cert_i: Any, valid: int, host: bytes, data: RemoteCallbacks
+) -> int:
     # We want to simulate what should happen if libgit2 supported pass-through
     # for this callback. For SSH, 'valid' is always False, because it doesn't
     # look at known_hosts, but we do want to let it through in order to do what
@@ -560,21 +572,23 @@ def _certificate_check_cb(cert_i, valid, host, data):
 
 
 @libgit2_callback
-def _credentials_cb(cred_out, url, username, allowed, data):
+def _credentials_cb(
+    cred_out: Any, url: bytes, username: bytes, allowed: int, data: RemoteCallbacks
+) -> int:
     credentials = getattr(data, 'credentials', None)
     if not credentials:
         return 0
 
     # convert int flags to enum before forwarding to user code
-    allowed = CredentialType(allowed)
+    allowed_types = CredentialType(allowed)
 
-    ccred = get_credentials(credentials, url, username, allowed)
+    ccred = get_credentials(credentials, url, username, allowed_types)
     cred_out[0] = ccred[0]
     return 0
 
 
 @libgit2_callback
-def _push_negotiation_cb(updates, num_updates, data):
+def _push_negotiation_cb(updates: Any, num_updates: int, data: RemoteCallbacks) -> int:
     from .remotes import PushUpdate
 
     push_negotiation = getattr(data, 'push_negotiation', None)
@@ -587,7 +601,7 @@ def _push_negotiation_cb(updates, num_updates, data):
 
 
 @libgit2_callback
-def _push_update_reference_cb(ref, msg, data):
+def _push_update_reference_cb(ref: bytes, msg: bytes, data: RemoteCallbacks) -> int:
     push_update_reference = getattr(data, 'push_update_reference', None)
     if not push_update_reference:
         return 0
@@ -599,7 +613,13 @@ def _push_update_reference_cb(ref, msg, data):
 
 
 @libgit2_callback
-def _remote_create_cb(remote_out, repo, name, url, data):
+def _remote_create_cb(
+    remote_out: Any,
+    repo: Any,
+    name: bytes,
+    url: bytes,
+    data: Payload,
+) -> int:
     from .repository import Repository
 
     remote = data.remote(
@@ -613,7 +633,7 @@ def _remote_create_cb(remote_out, repo, name, url, data):
 
 
 @libgit2_callback
-def _repository_create_cb(repo_out, path, bare, data):
+def _repository_create_cb(repo_out: Any, path: bytes, bare: int, data: Payload) -> int:
     repository = data.repository(ffi.string(path), bare != 0)
     # we no longer own the C object
     repository._disown()
@@ -623,7 +643,7 @@ def _repository_create_cb(repo_out, path, bare, data):
 
 
 @libgit2_callback
-def _sideband_progress_cb(string, length, data):
+def _sideband_progress_cb(string: bytes, length: int, data: RemoteCallbacks) -> int:
     sideband_progress = getattr(data, 'sideband_progress', None)
     if not sideband_progress:
         return 0
@@ -634,7 +654,7 @@ def _sideband_progress_cb(string, length, data):
 
 
 @libgit2_callback
-def _transfer_progress_cb(stats_ptr, data):
+def _transfer_progress_cb(stats_ptr: Any, data: RemoteCallbacks) -> int:
     from .remotes import TransferProgress
 
     transfer_progress = getattr(data, 'transfer_progress', None)
@@ -646,7 +666,9 @@ def _transfer_progress_cb(stats_ptr, data):
 
 
 @libgit2_callback
-def _push_transfer_progress_cb(current, total, bytes_pushed, payload):
+def _push_transfer_progress_cb(
+    current: int, total: int, bytes_pushed: int, payload: RemoteCallbacks
+) -> int:
     push_transfer_progress = getattr(payload, 'push_transfer_progress', None)
     if not push_transfer_progress:
         return 0
@@ -656,15 +678,15 @@ def _push_transfer_progress_cb(current, total, bytes_pushed, payload):
 
 
 @libgit2_callback
-def _update_tips_cb(refname, a, b, data):
+def _update_tips_cb(refname: bytes, a: bytes, b: bytes, data: RemoteCallbacks) -> int:
     update_tips = getattr(data, 'update_tips', None)
     if not update_tips:
         return 0
 
     s = maybe_string(refname)
-    a = Oid(raw=bytes(ffi.buffer(a)[:]))
-    b = Oid(raw=bytes(ffi.buffer(b)[:]))
-    update_tips(s, a, b)
+    a_oid = Oid(raw=bytes(ffi.buffer(a)[:]))
+    b_oid = Oid(raw=bytes(ffi.buffer(b)[:]))
+    update_tips(s, a_oid, b_oid)
     return 0
 
 
@@ -673,7 +695,12 @@ def _update_tips_cb(refname, a, b, data):
 #
 
 
-def get_credentials(fn, url, username, allowed):
+def get_credentials(
+    fn: Callable[[str | None, str | None, CredentialType], _Credentials],
+    url: bytes,
+    username: bytes,
+    allowed: CredentialType,
+) -> Any:
     """Call fn and return the credentials object."""
     url_str = maybe_string(url)
     username_str = maybe_string(username)
@@ -764,12 +791,12 @@ def _checkout_progress_cb(path, completed_steps, total_steps, data: CheckoutCall
 
 
 def _git_checkout_options(
-    callbacks=None,
-    strategy=None,
-    directory=None,
-    paths=None,
-    c_checkout_options_ptr=None,
-):
+    callbacks: CheckoutCallbacks | None = None,
+    strategy: CheckoutStrategy | None = None,
+    directory: str | None = None,
+    paths: Sequence[str] | None = None,
+    c_checkout_options_ptr: Any | None = None,
+) -> CheckoutCallbacks:
     if callbacks is None:
         payload = CheckoutCallbacks()
     else:
@@ -824,7 +851,12 @@ def _git_checkout_options(
 
 
 @contextmanager
-def git_checkout_options(callbacks=None, strategy=None, directory=None, paths=None):
+def git_checkout_options(
+    callbacks: CheckoutCallbacks | None = None,
+    strategy: CheckoutStrategy | None = None,
+    directory: str | None = None,
+    paths: Sequence[str] | None = None,
+) -> Generator[CheckoutCallbacks, None, None]:
     yield _git_checkout_options(
         callbacks=callbacks, strategy=strategy, directory=directory, paths=paths
     )
@@ -853,8 +885,12 @@ def _stash_apply_progress_cb(progress: StashApplyProgress, data: StashApplyCallb
 
 @contextmanager
 def git_stash_apply_options(
-    callbacks=None, reinstate_index=False, strategy=None, directory=None, paths=None
-):
+    callbacks: CheckoutCallbacks | None = None,
+    reinstate_index: bool = False,
+    strategy: CheckoutStrategy | None = None,
+    directory: str | None = None,
+    paths: Sequence[str] | None = None,
+) -> Generator[CheckoutCallbacks, None, None]:
     if callbacks is None:
         callbacks = StashApplyCallbacks()
 
