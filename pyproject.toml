@@ -60,6 +60,9 @@ target-version = "py310"  # oldest supported Python version
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I", "UP035", "UP007"]
 
+[tool.ruff.lint.per-file-ignores]
+"*.pyi" = ["F403", "F405"]  # Star imports are intentional in stub files
+
 [tool.ruff.format]
 quote-style = "single"
 

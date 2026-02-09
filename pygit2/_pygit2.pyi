@@ -1,8 +1,8 @@
-from _typeshed import StrOrBytesPath
 from collections.abc import Iterator
 from io import IOBase
-from typing import Any, Literal, final, overload
-from typing_extensions import TypeAlias
+from typing import Any, Literal, TypeAlias, final, overload
+
+from _typeshed import StrOrBytesPath
 
 from . import Index
 from .enums import (
@@ -850,7 +850,5 @@ def option(opt: Option, *args: Any) -> int | str | tuple[int, int] | None: ...
 def reference_is_valid_name(refname: str) -> bool: ...
 def tree_entry_cmp(a: Object, b: Object) -> int: ...
 def _cache_enums() -> None: ...  # undocumented
-def filter_register(name: str, filter: type[Filter]) -> None: ...
-def filter_unregister(name: str) -> None: ...
 
 _OidArg: TypeAlias = str | Oid

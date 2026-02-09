@@ -1,6 +1,5 @@
 from collections.abc import Iterator
-from typing import Literal, TypedDict
-from typing_extensions import TypeAlias
+from typing import Literal, TypeAlias, TypedDict
 
 from _cffi_backend import _CDataBase
 

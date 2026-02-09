@@ -1,8 +1,8 @@
-from _typeshed import StrOrBytesPath, StrPath
 from collections.abc import Iterator
-from typing_extensions import Self
+from typing import Self
 
 from _cffi_backend import _CDataBase
+from _typeshed import StrOrBytesPath, StrPath
 
 from ._pygit2 import Diff, Oid, Tree
 from .enums import DiffOption, FileMode

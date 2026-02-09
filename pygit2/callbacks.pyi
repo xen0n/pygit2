@@ -1,10 +1,10 @@
-from _typeshed import StrOrBytesPath
 from collections.abc import Callable
 from contextlib import AbstractContextManager
-from typing import Protocol
-from typing_extensions import ParamSpec, Self, TypeAlias
+from typing import Protocol, Self, TypeAlias
 
 from _cffi_backend import _CDataBase
+from _typeshed import StrOrBytesPath
+from typing_extensions import ParamSpec
 
 from ._pygit2 import DiffFile, Oid
 from .enums import CheckoutNotify, CheckoutStrategy, CredentialType, StashApplyProgress

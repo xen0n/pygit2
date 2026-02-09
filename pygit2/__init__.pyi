@@ -1,23 +1,34 @@
-from _typeshed import StrOrBytesPath, SupportsAllComparisons
 from collections.abc import Callable
+
+from _typeshed import StrOrBytesPath, SupportsAllComparisons
 
 from . import enums
 from ._build import __version__ as __version__
 from ._pygit2 import *
-from .blame import Blame as Blame, BlameHunk as BlameHunk
+from .blame import Blame as Blame
+from .blame import BlameHunk as BlameHunk
 from .blob import BlobIO as BlobIO
 from .callbacks import (
     CheckoutCallbacks as CheckoutCallbacks,
+)
+from .callbacks import (
     Payload as Payload,
+)
+from .callbacks import (
     RemoteCallbacks,
+)
+from .callbacks import (
     StashApplyCallbacks as StashApplyCallbacks,
+)
+from .callbacks import (
     get_credentials as get_credentials,
 )
 from .config import Config as Config
 from .credentials import *
 from .errors import Passthrough as Passthrough
 from .filter import Filter as Filter
-from .index import Index as Index, IndexEntry as IndexEntry
+from .index import Index as Index
+from .index import IndexEntry as IndexEntry
 from .legacyenums import *
 from .packbuilder import PackBuilder as PackBuilder
 from .remotes import Remote as Remote

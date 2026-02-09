@@ -1,9 +1,8 @@
 import types
-from _typeshed import StrOrBytesPath, StrPath
-from typing import Generic, TypeVar
-from typing_extensions import TypeAlias
+from typing import Generic, TypeAlias, TypeVar
 
 from _cffi_backend import _CDataBase
+from _typeshed import StrOrBytesPath, StrPath
 
 def maybe_string(ptr: _CDataBase) -> str | None: ...
 def to_bytes(

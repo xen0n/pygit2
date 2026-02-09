@@ -1,6 +1,6 @@
-from _typeshed import Incomplete
 from pathlib import Path
 
+from _typeshed import Incomplete
 from cffi import FFI
 
 dir_path: Path

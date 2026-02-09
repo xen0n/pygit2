@@ -1,7 +1,7 @@
-from _typeshed import StrOrBytesPath
-from typing_extensions import Self
+from typing import Self
 
 from _cffi_backend import _CDataBase
+from _typeshed import StrOrBytesPath
 
 def str_to_bytes(value: str, name: object) -> bytes: ...
 

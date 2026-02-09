@@ -1,7 +1,8 @@
 import io
 import types
-from _typeshed import WriteableBuffer
 from contextlib import AbstractContextManager
+
+from _typeshed import WriteableBuffer
 
 from ._pygit2 import Blob, Oid
 from .enums import BlobFilter

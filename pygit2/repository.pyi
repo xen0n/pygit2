@@ -1,8 +1,9 @@
-from _typeshed import StrOrBytesPath
 from collections.abc import Callable, Iterable, Iterator
 from tarfile import TarInfo
-from typing import IO, Any, Protocol
-from typing_extensions import TypeAlias, deprecated
+from typing import IO, Any, Protocol, TypeAlias
+
+from _typeshed import StrOrBytesPath
+from typing_extensions import deprecated
 
 from ._pygit2 import (
     Blob,
@@ -11,10 +12,12 @@ from ._pygit2 import (
     Object,
     Oid,
     Reference,
-    Repository as _Repository,
     Signature,
     Tree,
     _OidArg,
+)
+from ._pygit2 import (
+    Repository as _Repository,
 )
 from .blame import Blame
 from .callbacks import CheckoutCallbacks, RemoteCallbacks, StashApplyCallbacks
@@ -22,7 +25,6 @@ from .config import Config
 from .enums import (
     AttrCheck,
     BlameFlag,
-    BranchType as BranchType,
     CheckoutStrategy,
     DescribeStrategy,
     DiffOption,
@@ -31,6 +33,9 @@ from .enums import (
     MergeFlag,
     RepositoryOpenFlag,
     RepositoryState,
+)
+from .enums import (
+    BranchType as BranchType,
 )
 from .index import Index, IndexEntry
 from .packbuilder import PackBuilder
@@ -43,6 +48,7 @@ class _SupportsAddfile(Protocol):
     def addfile(self, tarinfo: TarInfo, fileobj: IO[bytes] | None = None) -> None: ...
 
 class BaseRepository(_Repository):
+    _repo: Any  # Internal C pointer
     def __init__(
         self, *args: Any, **kwargs: Any
     ) -> None: ...  # not meant for direct use
